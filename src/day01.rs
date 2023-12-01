@@ -38,78 +38,44 @@ fn find_last_digit_and_its_position(line: &str) -> Option<(usize, u8)> {
         .map(|(pos, c)| (line.len() - pos, c as u8 - b'0'))
 }
 
-lazy_static! {
-    static ref DIGITS: HashMap<&'static str, u8> = {
-        let mut m = HashMap::new();
-        m.insert("one", 1);
-        m.insert("two", 2);
-        m.insert("three", 3);
-        m.insert("four", 4);
-        m.insert("five", 5);
-        m.insert("six", 6);
-        m.insert("seven", 7);
-        m.insert("eight", 8);
-        m.insert("nine", 9);
-        m
-    };
-}
-
-fn find_first_word_and_its_position(line: &str) -> Option<(usize, u8)> {
-    DIGITS
-        .iter()
-        .map(|(k, v)| (line.find(k), v))
-        .filter(|(o, v)| o.is_some())
-        .map(|(o, v)| (o.unwrap(), *v))
-        .min()
-}
-
-fn find_last_word_and_its_position(line: &str) -> Option<(usize, u8)> {
-    DIGITS
-        .iter()
-        .map(|(k, v)| (line.rfind(k), v))
-        .filter(|(o, v)| o.is_some())
-        .map(|(o, v)| (o.unwrap(), *v))
-        .max()
-}
+static DIGITS: [&str; 9] = [
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+];
 
 fn find_real_number(line: &str) -> u32 {
-    let first_digit = find_first_digit_and_its_position(line);
-    let first_word = find_first_word_and_its_position(line);
-    let last_digit = find_last_digit_and_its_position(line);
-    let last_word = find_last_word_and_its_position(line);
-    // println!("line: {}", line);
-    // println!(
-    //     "first_digit {:?} first_word {:?} last_digit {:?} last_word {:?}",
-    //     first_digit, first_word, last_digit, last_word
-    // );
     let mut d1: u32 = 0;
+    'outer: for i in 0..line.len() {
+        if (line.as_bytes()[i] as char).is_numeric() {
+            d1 = (line.as_bytes()[i] - b'0') as u32;
+            break 'outer;
+        }
+        for (pos, d) in DIGITS.into_iter().enumerate() {
+            if i + d.len() > line.len() {
+                continue;
+            }
+            if *d == line[i..i + d.len()] {
+                d1 = pos as u32 + 1;
+                break 'outer;
+            }
+        }
+    }
     let mut d2: u32 = 0;
-    let d1 = match (first_digit, first_word) {
-        (Some(t1), Some(t2)) => {
-            if t1.0 < t2.0 {
-                t1.1
-            } else {
-                t2.1
+    'outer: for i in (0..line.len()).rev() {
+        if (line.as_bytes()[i] as char).is_numeric() {
+            d2 = (line.as_bytes()[i] - b'0') as u32;
+            break 'outer;
+        }
+        for (pos, d) in DIGITS.into_iter().enumerate() {
+            if i + d.len() > line.len() {
+                continue;
+            }
+            if *d == line[i..i + d.len()] {
+                d2 = pos as u32 + 1;
+                break 'outer;
             }
         }
-        (Some(t1), None) => t1.1,
-        (None, Some(t2)) => t2.1,
-        _ => panic!("no first digit found in line {}", line),
-    };
-    let d2 = match (last_digit, last_word) {
-        (Some(t1), Some(t2)) => {
-            if t1.0 > t2.0 {
-                t1.1
-            } else {
-                t2.1
-            }
-        }
-        (Some(t1), None) => t1.1,
-        (None, Some(t2)) => t2.1,
-        _ => panic!("no last digit found in line {}", line),
-    };
-    // println!("{}", d1 as u32 * 10 + d2 as u32);
-    d1 as u32 * 10 + d2 as u32
+    }
+    d1 * 10 + d2
 }
 
 fn part2() -> u32 {
