@@ -27,7 +27,7 @@ cargo bench
 
 |                       | Problem                                            | Part 1   | Part 2   |   
 |-----------------------|----------------------------------------------------|----------|----------|
-| [Day 1](src/day01.rs) | [Problem 1](https://adventofcode.com/2023/day/1)   |   x.xxx ms |   x.xxx ms |   
+| [Day 1](src/day01.rs) | [Problem 1](https://adventofcode.com/2023/day/1)   |   0.071 ms |   1.083 ms |   
 
 Days 2-25 are placeholders copied from aoc 2022
 
