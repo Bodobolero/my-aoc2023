@@ -48,7 +48,47 @@ fn part1() -> u32 {
 }
 
 fn part2() -> u32 {
-    14859
+    INPUT
+        .lines()
+        .map(|line| {
+            // map from color to minimum required items
+            let mut max_map: HashMap<&str, u32> = HashMap::new();
+            let mut parts = line.split(": ");
+            let mut game_parts = parts.next().unwrap().split(' ');
+            let games_parts = parts.next().unwrap().split("; ");
+            // extract game numeric ID
+            game_parts.next();
+            let game_id = game_parts.next().unwrap();
+            let game_nr = game_id.parse::<u32>().unwrap();
+            println!("Game {}", game_nr);
+            // extract games
+            let mut allowed_game = true;
+            for game_str in games_parts {
+                let cube_strings = game_str.split(", ");
+                for cube_str in cube_strings {
+                    let mut cube_parts = cube_str.split(' ');
+                    let nr_cubes = cube_parts.next().unwrap().parse::<u32>().unwrap();
+                    let cube_color = cube_parts.next().unwrap();
+                    match max_map.get(cube_color) {
+                        Some(nr) => {
+                            if nr_cubes > *nr {
+                                max_map.insert(cube_color, nr_cubes);
+                            }
+                        }
+                        None => {
+                            max_map.insert(cube_color, nr_cubes);
+                        }
+                    }
+                }
+            }
+            println!("fewest cubes {:?}", max_map);
+            let mut power: u32 = 1;
+            for cubes in max_map.values() {
+                power *= cubes;
+            }
+            power
+        })
+        .sum::<u32>()
 }
 
 pub fn main() {
@@ -67,7 +107,7 @@ mod tests {
     }
     #[test]
     fn part2_test() {
-        assert_eq!(part2(), 14859);
+        assert_eq!(part2(), 56580);
     }
     #[bench]
     fn part1_bench(b: &mut Bencher) {
