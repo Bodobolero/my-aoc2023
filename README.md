@@ -1,5 +1,5 @@
-# Advent of Code 2022
-My [Advent of Code 2022](https://adventofcode.com) solutions in the Rust programming language.
+# Advent of Code 2023
+My [Advent of Code 2023](https://adventofcode.com) solutions in the Rust programming language.
 
 Structure of solutions modeled after https://github.com/ahmadkaouk/advent-of-code-2021
 
