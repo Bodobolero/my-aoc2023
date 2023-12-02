@@ -1,49 +1,54 @@
 #![feature(test)]
 
-extern crate test;
-
 use std::collections::HashMap;
+
+extern crate test;
 
 const INPUT: &str = include_str!("../inputs/input02.txt");
 
 fn part1() -> u32 {
-    let score_rules: HashMap<&str, u32> = [
-        ("A X", 4),
-        ("A Y", 8),
-        ("A Z", 3),
-        ("B X", 1),
-        ("B Y", 5),
-        ("B Z", 9),
-        ("C X", 7),
-        ("C Y", 2),
-        ("C Z", 6),
-    ]
-    .into_iter()
-    .collect();
+    let mut allowed = HashMap::new();
+    allowed.insert("red", 12);
+    allowed.insert("green", 13);
+    allowed.insert("blue", 14);
     INPUT
         .lines()
-        .map(|game| score_rules.get(game).unwrap())
-        .sum()
+        .map(|line| {
+            let mut parts = line.split(": ");
+            let mut game_parts = parts.next().unwrap().split(' ');
+            let games_parts = parts.next().unwrap().split("; ");
+            // extract game numeric ID
+            game_parts.next();
+            let game_id = game_parts.next().unwrap();
+            let game_nr = game_id.parse::<u32>().unwrap();
+            println!("Game {}", game_nr);
+            // extract games
+            let mut allowed_game = true;
+            for game_str in games_parts {
+                let cube_strings = game_str.split(", ");
+                for cube_str in cube_strings {
+                    let mut cube_parts = cube_str.split(' ');
+                    let nr_cubes = cube_parts.next().unwrap().parse::<u32>().unwrap();
+                    let cube_color = cube_parts.next().unwrap();
+                    if nr_cubes > *allowed.get(cube_color).unwrap() {
+                        allowed_game = false;
+                        println!(
+                            "Game {} is not allowed because it has {} {} cubes",
+                            game_nr, nr_cubes, cube_color
+                        );
+                        break;
+                    }
+                }
+            }
+            (game_nr, allowed_game)
+        })
+        .filter(|(_, allowed_game)| *allowed_game)
+        .map(|(game_nr, _)| game_nr)
+        .sum::<u32>()
 }
 
 fn part2() -> u32 {
-    let score_rules: HashMap<&str, u32> = [
-        ("A X", 3),
-        ("A Y", 4),
-        ("A Z", 8),
-        ("B X", 1),
-        ("B Y", 5),
-        ("B Z", 9),
-        ("C X", 2),
-        ("C Y", 6),
-        ("C Z", 7),
-    ]
-    .into_iter()
-    .collect();
-    INPUT
-        .lines()
-        .map(|game| score_rules.get(game).unwrap())
-        .sum()
+    14859
 }
 
 pub fn main() {
@@ -58,7 +63,7 @@ mod tests {
 
     #[test]
     fn part1_test() {
-        assert_eq!(part1(), 10310);
+        assert_eq!(part1(), 2727);
     }
     #[test]
     fn part2_test() {
