@@ -1,5 +1,7 @@
 #![feature(test)]
 
+use std::collections::{HashMap, HashSet};
+
 extern crate test;
 
 const INPUT: &str = include_str!("../inputs/input03.txt");
@@ -73,8 +75,87 @@ fn part1() -> u32 {
     sum
 }
 
+fn is_star(tocheck: u8) -> bool {
+    tocheck == b'*'
+}
+
+fn find_adjacent_stars(
+    bytes: &Vec<&[u8]>,
+    line: usize,
+    startpos: usize,
+    endpos: usize,
+) -> Vec<(usize, usize)> {
+    let mut stars: Vec<(usize, usize)> = Vec::new();
+
+    // check left
+    if startpos > 0 && is_star(bytes[line][startpos - 1]) {
+        stars.push((line, startpos - 1));
+    }
+    // check right
+    if endpos + 1 < bytes[line].len() && is_star(bytes[line][endpos + 1]) {
+        stars.push((line, endpos + 1));
+    }
+    let start = if startpos == 0 { 1 } else { startpos };
+    let end = if endpos + 1 == bytes[line].len() {
+        endpos - 1
+    } else {
+        endpos
+    };
+    // check top
+    if line > 0 {
+        for i in start - 1..end + 2 {
+            if is_symbol(bytes[line - 1][i]) {
+                stars.push((line - 1, i));
+            }
+        }
+    }
+    // check bottom
+    if line + 1 < bytes.len() {
+        for i in start - 1..end + 2 {
+            if is_symbol(bytes[line + 1][i]) {
+                stars.push((line + 1, i));
+            }
+        }
+    }
+    stars
+}
+
+type StarPos = (usize, usize);
+type Number = (u32, usize, usize);
+type NumberSet = HashSet<Number>;
+type StarMap = HashMap<StarPos, NumberSet>;
+
 fn part2() -> u32 {
-    0
+    let mut star_map: StarMap = HashMap::new();
+    let bytes: Vec<&[u8]> = INPUT.lines().map(|l| l.as_bytes()).collect();
+    for line in 0..bytes.len() {
+        let mut pos: usize = 0;
+        let mut number: u32 = 0;
+        while pos < bytes[line].len() {
+            if bytes[line][pos].is_ascii_digit() {
+                let start_nr_pos = pos;
+                number = (bytes[line][pos] - b'0') as u32;
+                pos += 1;
+                while pos < bytes[line].len() && bytes[line][pos].is_ascii_digit() {
+                    number = number * 10 + (bytes[line][pos] - b'0') as u32;
+                    pos += 1;
+                }
+                let stars = find_adjacent_stars(&bytes, line, start_nr_pos, pos - 1);
+                for star in stars {
+                    let mut set = star_map.entry(star).or_insert(HashSet::new());
+                    set.insert((number, line, start_nr_pos));
+                }
+                number = 0;
+            }
+            pos += 1;
+        }
+    }
+    // println!("Stars {:?}", star_map);
+    star_map
+        .values()
+        .filter(|set| set.len() > 1)
+        .map(|set| set.iter().fold(1, |acc, &x| acc * x.0))
+        .sum::<u32>()
 }
 
 pub fn main() {
@@ -89,11 +170,11 @@ mod tests {
 
     #[test]
     fn part1_test() {
-        assert_eq!(part1(), 4361);
+        assert_eq!(part1(), 556367);
     }
     #[test]
     fn part2_test() {
-        assert_eq!(part2(), 0);
+        assert_eq!(part2(), 89471771);
     }
     #[bench]
     fn part1_bench(b: &mut Bencher) {
