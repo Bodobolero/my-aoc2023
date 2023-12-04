@@ -32,6 +32,6 @@ cargo bench
 | [Day 3](src/day03.rs) | [Problem 3](https://adventofcode.com/2023/day/3)   |   0.034 ms |   0.235 ms | 
 | [Day 4](src/day04.rs) | [Problem 4](https://adventofcode.com/2023/day/4)   |   0.218 ms |   0.227 ms | 
 
-Days 4-25 are placeholders copied from aoc 2022
+Days 5-25 are placeholders copied from aoc 2022
 
 > The benchmarks are measured with the unstable bench feature of Rust using my Macbook Pro 13' mid 2019
