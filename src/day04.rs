@@ -66,8 +66,8 @@ fn part2() -> usize {
     for (i, matched) in matched_numbers.into_iter().enumerate() {
         let num_cards = card_counts[i]; // number of cards at position i
         let wins = std::cmp::min(matched, card_counts.len() - i - 1);
-        for j in i + 1..i + wins + 1 {
-            card_counts[j] += num_cards;
+        for card_count in card_counts.iter_mut().skip(i + 1).take(wins) {
+            *card_count += num_cards;
         }
     }
     card_counts.into_iter().sum()

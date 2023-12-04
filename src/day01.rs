@@ -1,8 +1,5 @@
 #![feature(test)]
 
-use lazy_static::lazy_static;
-use std::collections::HashMap;
-
 extern crate test;
 const INPUT: &str = include_str!("../inputs/input01.txt");
 
@@ -21,21 +18,6 @@ fn find_number(line: &str) -> u32 {
 
 fn part1() -> u32 {
     INPUT.lines().map(find_number).sum::<u32>()
-}
-
-fn find_first_digit_and_its_position(line: &str) -> Option<(usize, u8)> {
-    line.chars()
-        .enumerate()
-        .find(|c| c.1.is_numeric())
-        .map(|(pos, c)| (pos, c as u8 - b'0'))
-}
-
-fn find_last_digit_and_its_position(line: &str) -> Option<(usize, u8)> {
-    line.chars()
-        .rev()
-        .enumerate()
-        .find(|c| c.1.is_numeric())
-        .map(|(pos, c)| (line.len() - pos, c as u8 - b'0'))
 }
 
 static DIGITS: [&str; 9] = [

@@ -62,7 +62,6 @@ fn part2() -> u32 {
             let game_nr = game_id.parse::<u32>().unwrap();
             println!("Game {}", game_nr);
             // extract games
-            let mut allowed_game = true;
             for game_str in games_parts {
                 let cube_strings = game_str.split(", ");
                 for cube_str in cube_strings {

@@ -48,7 +48,7 @@ fn part1() -> u32 {
     let bytes: Vec<&[u8]> = INPUT.lines().map(|l| l.as_bytes()).collect();
     for line in 0..bytes.len() {
         let mut pos: usize = 0;
-        let mut number: u32 = 0;
+        let mut number: u32;
         while pos < bytes[line].len() {
             if bytes[line][pos].is_ascii_digit() {
                 let start_nr_pos = pos;
@@ -66,8 +66,6 @@ fn part1() -> u32 {
                 //  else {
                 //     println!(" is ignored and NOT adjacent to symbol");
                 // }
-
-                number = 0;
             }
             pos += 1;
         }
@@ -130,7 +128,7 @@ fn part2() -> u32 {
     let bytes: Vec<&[u8]> = INPUT.lines().map(|l| l.as_bytes()).collect();
     for line in 0..bytes.len() {
         let mut pos: usize = 0;
-        let mut number: u32 = 0;
+        let mut number: u32;
         while pos < bytes[line].len() {
             if bytes[line][pos].is_ascii_digit() {
                 let start_nr_pos = pos;
@@ -142,10 +140,9 @@ fn part2() -> u32 {
                 }
                 let stars = find_adjacent_stars(&bytes, line, start_nr_pos, pos - 1);
                 for star in stars {
-                    let mut set = star_map.entry(star).or_insert(HashSet::new());
+                    let set = star_map.entry(star).or_default();
                     set.insert((number, line, start_nr_pos));
                 }
-                number = 0;
             }
             pos += 1;
         }
