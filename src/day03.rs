@@ -1,6 +1,6 @@
 #![feature(test)]
 
-use std::collections::{HashMap, HashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 
 extern crate test;
 
@@ -120,11 +120,11 @@ fn find_adjacent_stars(
 
 type StarPos = (usize, usize);
 type Number = (u32, usize, usize);
-type NumberSet = HashSet<Number>;
-type StarMap = HashMap<StarPos, NumberSet>;
+type NumberSet = FxHashSet<Number>;
+type StarMap = FxHashMap<StarPos, NumberSet>;
 
 fn part2() -> u32 {
-    let mut star_map: StarMap = HashMap::new();
+    let mut star_map: StarMap = FxHashMap::default();
     let bytes: Vec<&[u8]> = INPUT.lines().map(|l| l.as_bytes()).collect();
     for line in 0..bytes.len() {
         let mut pos: usize = 0;

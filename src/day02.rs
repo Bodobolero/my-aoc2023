@@ -1,13 +1,13 @@
 #![feature(test)]
 
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 extern crate test;
 
 const INPUT: &str = include_str!("../inputs/input02.txt");
 
 fn part1() -> u32 {
-    let mut allowed = HashMap::new();
+    let mut allowed = FxHashMap::default();
     allowed.insert("red", 12);
     allowed.insert("green", 13);
     allowed.insert("blue", 14);
@@ -52,7 +52,7 @@ fn part2() -> u32 {
         .lines()
         .map(|line| {
             // map from color to minimum required items
-            let mut max_map: HashMap<&str, u32> = HashMap::new();
+            let mut max_map: FxHashMap<&str, u32> = FxHashMap::default();
             let mut parts = line.split(": ");
             let mut game_parts = parts.next().unwrap().split(' ');
             let games_parts = parts.next().unwrap().split("; ");
