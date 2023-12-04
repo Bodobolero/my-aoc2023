@@ -2,54 +2,75 @@
 
 extern crate test;
 
-use regex::Regex;
-
-lazy_static::lazy_static! {
-    static ref RE_RULE: Regex = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
-}
+use rustc_hash::FxHashSet;
 
 const INPUT: &str = include_str!("../inputs/input04.txt");
-
-fn contains(a1: usize, a2: usize, b1: usize, b2: usize) -> bool {
-    let i1 = a1..=a2;
-    i1.contains(&b1) && i1.contains(&b2)
-}
-
-fn overlaps(a1: usize, a2: usize, b1: usize, b2: usize) -> bool {
-    let i1 = a1..=a2;
-    i1.contains(&b1) || i1.contains(&b2)
-}
 
 fn part1() -> usize {
     INPUT
         .lines()
-        .filter(|line| {
-            let caps = RE_RULE.captures(line).unwrap();
-            let (a1, a2, b1, b2) = (
-                caps.get(1).unwrap().as_str().parse::<usize>().unwrap(),
-                caps.get(2).unwrap().as_str().parse::<usize>().unwrap(),
-                caps.get(3).unwrap().as_str().parse::<usize>().unwrap(),
-                caps.get(4).unwrap().as_str().parse::<usize>().unwrap(),
-            );
-            contains(a1, a2, b1, b2) || contains(b1, b2, a1, a2)
+        .map(|line| {
+            let mut splits = line.split(": ");
+            splits.next();
+            let right = splits.next().unwrap();
+            let mut rsplits = right.split(" | ");
+            let win_str = rsplits.next().unwrap();
+            let have_str = rsplits.next().unwrap();
+            let winning_numbers: FxHashSet<u32> = win_str
+                .split_ascii_whitespace()
+                .map(|nrstr| nrstr.parse::<u32>().unwrap())
+                .collect();
+            // println!("winning numbers: {:?}", winning_numbers);
+            let winners = have_str
+                .split_ascii_whitespace()
+                .map(|nrstr| nrstr.parse::<u32>().unwrap())
+                .filter(|nr| winning_numbers.contains(nr))
+                .count();
+            // println!("have_str {} has {} winning numbers", have_str, winners);
+            if winners > 0 {
+                2usize.pow((winners - 1) as u32)
+            } else {
+                0
+            }
         })
-        .count()
+        .sum::<usize>()
 }
 
 fn part2() -> usize {
-    INPUT
+    // create an array of matching numbers
+    let mut matched_numbers: Vec<usize> = Vec::new();
+    let _: Vec<_> = INPUT
         .lines()
-        .filter(|line| {
-            let caps = RE_RULE.captures(line).unwrap();
-            let (a1, a2, b1, b2) = (
-                caps.get(1).unwrap().as_str().parse::<usize>().unwrap(),
-                caps.get(2).unwrap().as_str().parse::<usize>().unwrap(),
-                caps.get(3).unwrap().as_str().parse::<usize>().unwrap(),
-                caps.get(4).unwrap().as_str().parse::<usize>().unwrap(),
-            );
-            overlaps(a1, a2, b1, b2) || overlaps(b1, b2, a1, a2)
+        .map(|line| {
+            let mut splits = line.split(": ");
+            splits.next();
+            let right = splits.next().unwrap();
+            let mut rsplits = right.split(" | ");
+            let win_str = rsplits.next().unwrap();
+            let have_str = rsplits.next().unwrap();
+            let winning_numbers: FxHashSet<u32> = win_str
+                .split_ascii_whitespace()
+                .map(|nrstr| nrstr.parse::<u32>().unwrap())
+                .collect();
+            // println!("winning numbers: {:?}", winning_numbers);
+            let winners = have_str
+                .split_ascii_whitespace()
+                .map(|nrstr| nrstr.parse::<u32>().unwrap())
+                .filter(|nr| winning_numbers.contains(nr))
+                .count();
+            matched_numbers.push(winners);
         })
-        .count()
+        .collect();
+    println!("matching numbers per card: {:?}", matched_numbers);
+    let mut card_counts = vec![1usize; matched_numbers.len()];
+    for (i, matched) in matched_numbers.into_iter().enumerate() {
+        let num_cards = card_counts[i]; // number of cards at position i
+        let wins = std::cmp::min(matched, card_counts.len() - i - 1);
+        for j in i + 1..i + wins + 1 {
+            card_counts[j] += num_cards;
+        }
+    }
+    card_counts.into_iter().sum()
 }
 
 pub fn main() {
@@ -64,11 +85,11 @@ mod tests {
 
     #[test]
     fn part1_test() {
-        assert_eq!(part1(), 567);
+        assert_eq!(part1(), 23678);
     }
     #[test]
     fn part2_test() {
-        assert_eq!(part2(), 907);
+        assert_eq!(part2(), 15455663);
     }
     #[bench]
     fn part1_bench(b: &mut Bencher) {
