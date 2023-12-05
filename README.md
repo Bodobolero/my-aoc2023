@@ -1,6 +1,9 @@
 # Advent of Code 2023
 My [Advent of Code 2023](https://adventofcode.com) solutions in the Rust programming language.
 
+This year I only had time to work on puzzles 1-5 (day01-dayo05).
+The excecution time (measured with cargo bench) for all 5 part1 and part2 solutions is 1.3 milliseconds.
+
 Structure of solutions modeled after https://github.com/ahmadkaouk/advent-of-code-2021
 
 ## Usage
@@ -33,6 +36,5 @@ cargo bench
 | [Day 4](src/day04.rs) | [Problem 4](https://adventofcode.com/2023/day/4)   |   0.218 ms |   0.227 ms | 
 | [Day 5](src/day05.rs) | [Problem 5](https://adventofcode.com/2023/day/5)   |   0.041 ms |   0.057 ms | 
 
-Days 6-25 are placeholders copied from aoc 2022
 
 > The benchmarks are measured with the unstable bench feature of Rust using my Macbook Pro 13' mid 2019
