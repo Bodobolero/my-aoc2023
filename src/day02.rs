@@ -21,7 +21,7 @@ fn part1() -> u32 {
             game_parts.next();
             let game_id = game_parts.next().unwrap();
             let game_nr = game_id.parse::<u32>().unwrap();
-            println!("Game {}", game_nr);
+            // println!("Game {}", game_nr);
             // extract games
             let mut allowed_game = true;
             for game_str in games_parts {
@@ -32,10 +32,10 @@ fn part1() -> u32 {
                     let cube_color = cube_parts.next().unwrap();
                     if nr_cubes > *allowed.get(cube_color).unwrap() {
                         allowed_game = false;
-                        println!(
-                            "Game {} is not allowed because it has {} {} cubes",
-                            game_nr, nr_cubes, cube_color
-                        );
+                        // println!(
+                        //     "Game {} is not allowed because it has {} {} cubes",
+                        //     game_nr, nr_cubes, cube_color
+                        // );
                         break;
                     }
                 }
@@ -60,7 +60,7 @@ fn part2() -> u32 {
             game_parts.next();
             let game_id = game_parts.next().unwrap();
             let game_nr = game_id.parse::<u32>().unwrap();
-            println!("Game {}", game_nr);
+            // println!("Game {}", game_nr);
             // extract games
             for game_str in games_parts {
                 let cube_strings = game_str.split(", ");
@@ -80,7 +80,7 @@ fn part2() -> u32 {
                     }
                 }
             }
-            println!("fewest cubes {:?}", max_map);
+            // println!("fewest cubes {:?}", max_map);
             let mut power: u32 = 1;
             for cubes in max_map.values() {
                 power *= cubes;

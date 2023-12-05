@@ -17,7 +17,7 @@ pub struct Map<'a> {
 type MapMap<'a> = HashMap<&'a str, Map<'a>>;
 
 // map seed to location
-fn map(seed: usize, mapmap: &mut MapMap) -> usize {
+fn map(seed: usize, mapmap: &MapMap) -> usize {
     let mut from = "seed";
     let mut value = seed;
 
@@ -87,33 +87,101 @@ fn parse_input<'a>(input: &'a str) -> (Vec<usize>, MapMap) {
     (seeds, mapmap)
 }
 
+// return ranges
+fn map_ranges(ranges: &Vec<usize>, mapmap: &MapMap) -> Vec<usize> {
+    let mut from = "seed";
+    let mut ranges = ranges.clone();
+    let mut mapped_ranges: Vec<usize> = Vec::new();
+
+    'outer: loop {
+        let map = mapmap.get(from).unwrap();
+        // println!("processing map {:?}", map);
+        // println!("source ranges: {:?}", ranges);
+        'inner: for i in 0..ranges.len() / 2 {
+            let mut start = ranges[i * 2];
+            let mut len = ranges[i * 2 + 1];
+            loop {
+                // search start of range
+                match map
+                    .ranges
+                    .binary_search_by(|&(_, src_range_start, range_len)| {
+                        if start < src_range_start {
+                            return Ordering::Greater;
+                        };
+                        if start < src_range_start + range_len {
+                            return Ordering::Equal;
+                        };
+                        Ordering::Less
+                    }) {
+                    Ok(pos) => {
+                        let (dest_range_start, src_range_start, range_len) = map.ranges[pos];
+                        let target_src_range_start = dest_range_start + (start - src_range_start);
+                        let rest_len = range_len - (start - src_range_start);
+                        if len <= rest_len {
+                            // we have a simple mapped range and have fully mapped this range
+                            mapped_ranges.push(target_src_range_start);
+                            mapped_ranges.push(len);
+                            continue 'inner;
+                        } else {
+                            mapped_ranges.push(target_src_range_start);
+                            mapped_ranges.push(rest_len);
+                            start += rest_len;
+                            len -= rest_len;
+                        }
+                    }
+                    Err(pos) => {
+                        if pos >= map.ranges.len() {
+                            // we are at the end of all ranges
+                            mapped_ranges.push(start);
+                            mapped_ranges.push(len);
+                            continue 'inner;
+                        } else {
+                            // we are smaller then the next found range
+                            let (_, src_range_start, _) = map.ranges[pos];
+                            assert!(start < src_range_start);
+                            // add identical range to output
+                            mapped_ranges.push(start);
+                            if start + len <= src_range_start {
+                                mapped_ranges.push(len);
+                                continue 'inner; // complete range mapped
+                            } else {
+                                let mapped_len = src_range_start - start; // only interval until next mapped range
+                                mapped_ranges.push(mapped_len);
+                                start += mapped_len;
+                                len -= mapped_len;
+                                // iterate loop with rest of range to be mapped
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        ranges = mapped_ranges;
+        // println!("mapped ranges {:?}", ranges);
+        mapped_ranges = Vec::new();
+
+        if map.to == "location" {
+            break 'outer;
+        }
+        from = map.to;
+    }
+    ranges
+}
+
 fn part1(input: &str) -> usize {
-    let (seeds, mut mapmap) = parse_input(input);
+    let (seeds, mapmap) = parse_input(input);
     // println!("{:?}", seeds);
     seeds
         .into_iter()
-        .map(|seed| map(seed, &mut mapmap))
+        .map(|seed| map(seed, &mapmap))
         .min()
         .unwrap()
 }
 
 fn part2(input: &str) -> usize {
-    let (seeds, mut mapmap) = parse_input(input);
-    let mut local_minima: Vec<usize> = Vec::new();
-    for i in 0..seeds.len() / 2 {
-        let local_minimum = (seeds[i * 2]..seeds[i * 2] + seeds[i * 2 + 1])
-            .map(|seed| map(seed, &mut mapmap))
-            .min()
-            .unwrap();
-        println!(
-            "Local minimum: {} for range {}..{}",
-            local_minimum,
-            seeds[i * 2],
-            seeds[i * 2] + seeds[i * 2 + 1]
-        );
-        local_minima.push(local_minimum);
-    }
-    *local_minima.iter().min().unwrap()
+    let (ranges, mapmap) = parse_input(input);
+    let output_ranges = map_ranges(&ranges, &mapmap);
+    *output_ranges.iter().step_by(2).min().unwrap()
 }
 
 pub fn main() {
@@ -177,7 +245,7 @@ humidity-to-location map:
 
     #[test]
     fn part2_test() {
-        assert_eq!(part2(INPUT), 0);
+        assert_eq!(part2(INPUT), 1493866);
     }
     #[bench]
     fn part1_bench(b: &mut Bencher) {

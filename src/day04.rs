@@ -61,7 +61,7 @@ fn part2() -> usize {
             matched_numbers.push(winners);
         })
         .collect();
-    println!("matching numbers per card: {:?}", matched_numbers);
+    // println!("matching numbers per card: {:?}", matched_numbers);
     let mut card_counts = vec![1usize; matched_numbers.len()];
     for (i, matched) in matched_numbers.into_iter().enumerate() {
         let num_cards = card_counts[i]; // number of cards at position i
