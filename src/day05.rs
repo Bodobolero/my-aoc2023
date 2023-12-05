@@ -1,7 +1,6 @@
 #![feature(test)]
 
-use rustc_hash::FxHashMap;
-use std::collections::HashMap;
+use std::{cmp::Ordering, collections::HashMap};
 
 extern crate test;
 
@@ -12,7 +11,6 @@ pub struct Map<'a> {
     to: &'a str,
     // a range is a tuple (destination range start, source range start, range length)
     ranges: Vec<(usize, usize, usize)>,
-    history: FxHashMap<usize, usize>,
 }
 
 // a map with "from" as key and the map as value
@@ -24,22 +22,23 @@ fn map(seed: usize, mapmap: &mut MapMap) -> usize {
     let mut value = seed;
 
     'outer: loop {
-        let map = mapmap.get_mut(from).unwrap();
-        if let Some(mapped) = map.history.get(&value) {
-            print!("+");
-            value = *mapped;
-            break 'outer;
+        let map = mapmap.get(from).unwrap();
+        // now that we sorted the ranges we can do a quicksearch
+        if let Ok(pos) = map
+            .ranges
+            .binary_search_by(|&(_, src_range_start, range_len)| {
+                if value < src_range_start {
+                    return Ordering::Greater;
+                };
+                if value < src_range_start + range_len {
+                    return Ordering::Equal;
+                };
+                Ordering::Less
+            })
+        {
+            let (dest_range_start, src_range_start, _) = map.ranges[pos];
+            value = dest_range_start + (value - src_range_start);
         }
-        let mut new_value = value;
-        'inner: for (dest_range_start, src_range_start, range_len) in &map.ranges {
-            if value >= *src_range_start && value < *src_range_start + range_len {
-                new_value = *dest_range_start + (value - *src_range_start);
-                break 'inner;
-            }
-        }
-        map.history.insert(value, new_value);
-        print!("-");
-        value = new_value;
         if map.to == "location" {
             break 'outer;
         }
@@ -78,11 +77,9 @@ fn parse_input<'a>(input: &'a str) -> (Vec<usize>, MapMap) {
                 (dest_range_start, src_range_start, range_len)
             })
             .collect();
-        let map = Map {
-            to,
-            ranges,
-            history: FxHashMap::default(),
-        };
+        let mut map = Map { to, ranges };
+        map.ranges
+            .sort_by(|(_, src_start_a, _), (_, src_start_b, _)| src_start_a.cmp(src_start_b));
         // println!("{:?}", map);
         mapmap.insert(from, map);
     }
