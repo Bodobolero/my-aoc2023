@@ -88,9 +88,9 @@ fn parse_input<'a>(input: &'a str) -> (Vec<usize>, MapMap) {
 }
 
 // return ranges
-fn map_ranges(ranges: &Vec<usize>, mapmap: &MapMap) -> Vec<usize> {
+fn map_ranges(ranges: &[usize], mapmap: &MapMap) -> Vec<usize> {
     let mut from = "seed";
-    let mut ranges = ranges.clone();
+    let mut ranges: Vec<usize> = ranges.to_vec();
     let mut mapped_ranges: Vec<usize> = Vec::new();
 
     'outer: loop {

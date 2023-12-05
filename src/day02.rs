@@ -58,8 +58,8 @@ fn part2() -> u32 {
             let games_parts = parts.next().unwrap().split("; ");
             // extract game numeric ID
             game_parts.next();
-            let game_id = game_parts.next().unwrap();
-            let game_nr = game_id.parse::<u32>().unwrap();
+            // let game_id = game_parts.next().unwrap();
+            // let game_nr = game_id.parse::<u32>().unwrap();
             // println!("Game {}", game_nr);
             // extract games
             for game_str in games_parts {
