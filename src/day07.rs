@@ -88,18 +88,19 @@ pub fn part1() -> u64 {
                 splits.next().unwrap().parse::<u64>().unwrap(),
             )
         })
+        .map(|(hand, count)| (hand, hand_type(hand.as_bytes()), count))
         .collect();
-    hands.sort_by(|(hand1, _count1), (hand2, _count2)| {
-        let hand_type1 = hand_type(hand1.as_bytes());
-        let hand_type2 = hand_type(hand2.as_bytes());
-        if hand_type1 == hand_type2 {
-            hand_compare(hand1.as_bytes(), hand2.as_bytes())
-        } else {
-            hand_type1.cmp(&hand_type2)
-        }
-    });
+    hands.sort_unstable_by(
+        |(hand1, hand_type1, _count1), (hand2, hand_type2, _count2)| {
+            if hand_type1 == hand_type2 {
+                hand_compare(hand1.as_bytes(), hand2.as_bytes())
+            } else {
+                hand_type1.cmp(&hand_type2)
+            }
+        },
+    );
     let mut sum: u64 = 0;
-    for (i, (_hand, count)) in hands.iter().enumerate() {
+    for (i, (_hand, _handtype, count)) in hands.iter().enumerate() {
         //println!("pos {} hand {} count {}", i, hand, count);
         sum += (i + 1) as u64 * count;
     }
@@ -194,18 +195,19 @@ pub fn part2() -> u64 {
                 splits.next().unwrap().parse::<u64>().unwrap(),
             )
         })
+        .map(|(hand, count)| (hand, part2_hand_type(hand.as_bytes()), count))
         .collect();
-    hands.sort_unstable_by(|(hand1, _count1), (hand2, _count2)| {
-        let hand_type1 = part2_hand_type(hand1.as_bytes());
-        let hand_type2 = part2_hand_type(hand2.as_bytes());
-        if hand_type1 == hand_type2 {
-            part2_hand_compare(hand1.as_bytes(), hand2.as_bytes())
-        } else {
-            hand_type1.cmp(&hand_type2)
-        }
-    });
+    hands.sort_unstable_by(
+        |(hand1, hand_type1, _count1), (hand2, hand_type2, _count2)| {
+            if hand_type1 == hand_type2 {
+                part2_hand_compare(hand1.as_bytes(), hand2.as_bytes())
+            } else {
+                hand_type1.cmp(&hand_type2)
+            }
+        },
+    );
     let mut sum: u64 = 0;
-    for (i, (_hand, count)) in hands.iter().enumerate() {
+    for (i, (_hand, _hand_type, count)) in hands.iter().enumerate() {
         // println!(
         //     "pos {} hand {} hand_type {:?} count {}",
         //     i,
