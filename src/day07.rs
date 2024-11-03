@@ -195,7 +195,7 @@ pub fn part2() -> u64 {
             )
         })
         .collect();
-    hands.sort_by(|(hand1, _count1), (hand2, _count2)| {
+    hands.sort_unstable_by(|(hand1, _count1), (hand2, _count2)| {
         let hand_type1 = part2_hand_type(hand1.as_bytes());
         let hand_type2 = part2_hand_type(hand2.as_bytes());
         if hand_type1 == hand_type2 {
