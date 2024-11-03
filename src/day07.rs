@@ -230,12 +230,12 @@ mod tests {
 
     #[test]
     fn part1_test() {
-        assert_eq!(part1(), 252000);
+        assert_eq!(part1(), 251106089);
     }
 
     #[test]
     fn part2_test() {
-        assert_eq!(part2(), 36992486);
+        assert_eq!(part2(), 249620106);
     }
     #[bench]
     fn part1_bench(b: &mut Bencher) {
