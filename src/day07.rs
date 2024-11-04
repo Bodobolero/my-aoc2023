@@ -1,7 +1,6 @@
 #![feature(test)]
 
 extern crate test;
-use std::cmp::Ordering;
 
 #[allow(dead_code)] // not yet used in template
 const INPUT: &str = include_str!("../inputs/input07.txt");
@@ -66,16 +65,12 @@ fn hand_type(hand: &[u8]) -> HandType {
     HandType::HighCard
 }
 
-fn hand_compare(hand1: &[u8], hand2: &[u8]) -> Ordering {
-    for (i, c) in hand1.iter().enumerate() {
-        let strength1 = STRENGTH[(c - b'0') as usize];
-        let strength2 = STRENGTH[(hand2[i] - b'0') as usize];
-        if strength1 == strength2 {
-            continue;
-        }
-        return strength1.cmp(&strength2);
+fn hand_strength(hand: &[u8]) -> u64 {
+    let mut strength: u64 = 0;
+    for i in 0..5 {
+        strength = (strength << 4) | STRENGTH[(hand[i] - b'0') as usize] as u64;
     }
-    Ordering::Equal
+    strength
 }
 
 pub fn part1() -> u64 {
@@ -88,14 +83,20 @@ pub fn part1() -> u64 {
                 splits.next().unwrap().parse::<u64>().unwrap(),
             )
         })
-        .map(|(hand, count)| (hand, hand_type(hand.as_bytes()), count))
+        .map(|(hand, count)| {
+            (
+                hand_type(hand.as_bytes()),
+                hand_strength(hand.as_bytes()),
+                count,
+            )
+        })
         .collect();
     hands.sort_unstable_by(
-        |(hand1, hand_type1, _count1), (hand2, hand_type2, _count2)| {
+        |(hand_type1, hand1_strength, _count1), (hand_type2, hand2_strength, _count2)| {
             if hand_type1 == hand_type2 {
-                hand_compare(hand1.as_bytes(), hand2.as_bytes())
+                hand1_strength.cmp(hand2_strength)
             } else {
-                hand_type1.cmp(&hand_type2)
+                hand_type1.cmp(hand_type2)
             }
         },
     );
@@ -115,16 +116,12 @@ const PART2_STRENGTH: [u8; 37] = [
     14, 0, 0, 0, 0, 0, 0, 0, 0, 1, 13, 0, 0, 0, 0, 0, 12, 0, 0, 10,
 ];
 
-fn part2_hand_compare(hand1: &[u8], hand2: &[u8]) -> Ordering {
-    for (i, c) in hand1.iter().enumerate() {
-        let strength1 = PART2_STRENGTH[(c - b'0') as usize];
-        let strength2 = PART2_STRENGTH[(hand2[i] - b'0') as usize];
-        if strength1 == strength2 {
-            continue;
-        }
-        return strength1.cmp(&strength2);
+fn part2_hand_strength(hand: &[u8]) -> u64 {
+    let mut strength: u64 = 0;
+    for i in 0..5 {
+        strength = (strength << 4) | PART2_STRENGTH[(hand[i] - b'0') as usize] as u64;
     }
-    Ordering::Equal
+    strength
 }
 
 fn part2_hand_type(hand: &[u8]) -> HandType {
@@ -195,14 +192,20 @@ pub fn part2() -> u64 {
                 splits.next().unwrap().parse::<u64>().unwrap(),
             )
         })
-        .map(|(hand, count)| (hand, part2_hand_type(hand.as_bytes()), count))
+        .map(|(hand, count)| {
+            (
+                part2_hand_type(hand.as_bytes()),
+                part2_hand_strength(hand.as_bytes()),
+                count,
+            )
+        })
         .collect();
     hands.sort_unstable_by(
-        |(hand1, hand_type1, _count1), (hand2, hand_type2, _count2)| {
+        |(hand_type1, hand1_strength, _count1), (hand_type2, hand2_strength, _count2)| {
             if hand_type1 == hand_type2 {
-                part2_hand_compare(hand1.as_bytes(), hand2.as_bytes())
+                hand1_strength.cmp(hand2_strength)
             } else {
-                hand_type1.cmp(&hand_type2)
+                hand_type1.cmp(hand_type2)
             }
         },
     );
